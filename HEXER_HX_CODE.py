@@ -66,7 +66,7 @@ else:
 if N_ss_plus >= 1/2:
     J_b = 1
 else:
-    J_b = (np.e**(-C*r_b*(1-(2*N_ss_plus)**(1/3))))
+    J_b = (np.exp**(-C*r_b*(1-(2*N_ss_plus)**(1/3))))
 #print(J_b)
 
 #Larger baffle spacing correctional factor
