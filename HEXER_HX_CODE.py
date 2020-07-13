@@ -20,18 +20,54 @@ Revision Points
 import numpy as np
 
 ##Measured Information used in calculations
-
+D_s = 0.336            #Shell-side inside diameter (m)
+d_o = 0.019            #Tube-side outer diameter (m)
+d_i = 0.0166           #Tube-side inside diameter (m)
+d_l = 0.019749         #Tube whole diameter (m)
+p_t = 0.025            #Tube pitch (m)
+Tbl = 45               #Tube bundle Layout (degrees)
+L_bc = 0.279           #Central Baffle Spacing (m)
+L_bi = 0.318           #Inlet Baffle Spacing (m)
+L_bo = 0.318           #Outlet baffle spacing (m)
+l_c = 0.0867           #Baffle Cut (m) or 25.8%
+N_ss = 1               #Number of sealing strip pairs
+D_baffle = 0.333054    #Baffle distance (m)
+N_t = 102              #Total number of tubes
+L = 4.3                #Tube lenght (m)
+w_p = 0.019            #Width of bypass lane (m)
+n_p = 2                #Number of tube passes
+N_rcc = 9              #Number of effective rube rows crossed durring flow
+N_p = 2                #Number of pass partitions
+D_otl = 0.321          #Diameter of the outer tube limit
+d_tb = 0.000794        #Tube-to-baffle hole diametral clearance (m)
+d_sb = 0.002946        #Shell-to-baffle diametral clearance (m)
+k_w = 111              #Thermal conductivity of tube wall (W/m * K)
+m_s = 36.3             #Oil Flow rate (kg/s)
+T_si = 65.6            #Oil inlet temperature (degrees C)
+R_of = 0.000176        #Oil side fouling factor (m^2*W/K)
+X_t = 0.0354           #Tranverse tube pitch (m)
+R_if = 0.000088        #Water side fouling factor (m^2*W/K)
+p_s = 849              #Fluid density (kg/m^3)
+E = 0.1555             #Heat exchanger Effectiveness
+m_t = 18.1             #Water flow rate (kg/s)
+T_ti = 32.2            #Water inlet temperature (degrees C)
+k = 0.140              #Thermal cunductivity for fluid
+m_s = 36.3             #Fluid mass flow rate (kg/s)
+u_s = 0.0646           #Fluid dynamic viscosity
+Laminar_flow = 0       #Boolean to see if the flow is laminar, 1 is Laminar, 0 is Non-Laminar
+Nu_s = 125             #Nusselt number
+Bundle_layout = 30     #Tube bundle Layout degree
 ##Correctional Factor Calculations
 
 #Baffle configuration correctional factor
 D_ctl = D_otl-d_o
-theta_ctl = 2*np.acos((D_s-2*l_c)/D_ctl)
+theta_ctl = 2*np.arccos((D_s-2*l_c)/D_ctl)
 F_c = 1-(theta_ctl/np.pi)+(np.sin(theta_ctl)/np.pi)
 J_c = (0.55+0.72*F_c)
 #print(J_c)
 
 #Bundle Leakage effects correctional factor
-theta_b = 2*np.acos(1-(2*l_c/D_s))
+theta_b = 2*np.arccos(1-(2*l_c/D_s))
 F_w = (theta_ctl/(2*np.pi))-(np.sin(theta_ctl)/(2*np.pi))
 d_sb = D_s-D_baffle
 d_tb = d_l-d_o
@@ -66,7 +102,7 @@ else:
 if N_ss_plus >= 1/2:
     J_b = 1
 else:
-    J_b = (np.exp**(-C*r_b*(1-(2*N_ss_plus)**(1/3))))
+    J_b = (np.e**(-C*r_b*(1-(2*N_ss_plus)**(1/3))))
 #print(J_b)
 
 #Larger baffle spacing correctional factor
@@ -115,12 +151,12 @@ else:
 if N_ss_plus >= 0.5:
     C_b = 1
 else:
-    C_b = e**(-D*r_b*(1-(2*N_ss_plus)**(1/3)))
+    C_b = np.e**(-D*r_b*(1-(2*N_ss_plus)**(1/3)))
 #print(C_b)
 
 #Bypass Flow
 p = -0.15*(1+r_s)+0.8
-C_l = e**(-1.33*(1+r_s)*r_lm**p)
+C_l = np.e**(-1.33*(1+r_s)*r_lm**p)
 #print(C_l)
 
 #Differing Baffle Spacing from central section
@@ -153,8 +189,8 @@ T_to = T_ti+E*(T_si-T_ti)
 #q = m_s*c_ps*(T_to-T_ti)
 
 ##Overal heat Transfer Coefficient
-h_t = (Nu*k)/d_i
-h_i = h_t
+#h_t = (Nu*k)/d_i
+#h_i = h_t
 #U_o = (1/(h_o)) + (1/(h_of)) + ((d_o*ln(d_o/d_i))/(2*k_w)) + (d_o/(h_if*d_i)) + (d_o/(h_i*d_i))
 
 ##Approximate Design Method (Sizing)
