@@ -1,10 +1,10 @@
 '''
-Date of last edit: July 12th, 2020
+Date of last edit: July 27th, 2020
 Author(s): Ryan McGuire*    Lane Carasik^
 *Virginia CommonWealth University
 *FAST Research Group
-SHEER - Shell-and-tube Heat ExchangER code
-Equations for Shell-Side Reactor Heat Exchangers: 
+HEXER - base HEat EXchangER code
+Equations for Reactor Heat Exchangers: 
 Python Script for calculation of Shell-and Tube heat transfer coefficient using correctional factors
 for Shell-and-Tube bundles based on models found in literature.
 '''
@@ -18,82 +18,35 @@ Revision Points
 
 ##Basic Imports and Function Representatives
 import numpy as np
+import HEXER_variables as v
 
-##Measured Information used in calculations
-D_s = 0.336            #Shell-side inside diameter (m)
-d_o = 0.019            #Tube-side outer diameter (m)
-d_i = 0.0166           #Tube-side inside diameter (m)
-d_l = 0.019749         #Tube whole diameter (m)
-p_t = 0.025            #Tube pitch (m)
-Tbl = 45               #Tube bundle Layout (degrees)
-L_bc = 0.279           #Central Baffle Spacing (m)
-L_bi = 0.318           #Inlet Baffle Spacing (m)
-L_bo = 0.318           #Outlet baffle spacing (m)
-l_c = 0.0867           #Baffle Cut (m) or 25.8%
-N_ss = 1               #Number of sealing strip pairs
-D_baffle = 0.333054    #Baffle distance (m)
-N_t = 102              #Total number of tubes
-L = 4.3                #Tube lenght (m)
-w_p = 0.019            #Width of bypass lane (m)
-n_p = 2                #Number of tube passes
-N_rcc = 9              #Number of effective rube rows crossed durring flow
-N_p = 2                #Number of pass partitions
-D_otl = 0.321          #Diameter of the outer tube limit
-d_tb = 0.000794        #Tube-to-baffle hole diametral clearance (m)
-d_sb = 0.002946        #Shell-to-baffle diametral clearance (m)
-k_w = 111              #Thermal conductivity of tube wall (W/m * K)
-m_s = 36.3             #Oil Flow rate (kg/s)
-T_si = 65.6            #Oil inlet temperature (degrees C)
-R_of = 0.000176        #Oil side fouling factor (m^2*W/K)
-X_t = 0.0354           #Tranverse tube pitch (m)
-R_if = 0.000088        #Water side fouling factor (m^2*W/K)
-p_s = 849              #Fluid density (kg/m^3)
-E = 0.1555             #Heat exchanger Effectiveness
-m_t = 18.1             #Water flow rate (kg/s)
-T_ti = 32.2            #Water inlet temperature (degrees C)
-k = 0.140              #Thermal cunductivity for fluid
-m_s = 36.3             #Fluid mass flow rate (kg/s)
-u_s = 0.0646           #Fluid dynamic viscosity
-Laminar_flow = 0       #Boolean to see if the flow is laminar, 1 is Laminar, 0 is Non-Laminar
-Nu_s = 125             #Nusselt number
-Bundle_layout = 30     #Tube bundle Layout degree
 ##Correctional Factor Calculations
 
 #Baffle configuration correctional factor
-D_ctl = D_otl-d_o
-theta_ctl = 2*np.arccos((D_s-2*l_c)/D_ctl)
+D_ctl = v.D_otl-v.d_o
+theta_ctl = 2*np.arccos((v.D_s-2*v.l_c)/D_ctl)
 F_c = 1-(theta_ctl/np.pi)+(np.sin(theta_ctl)/np.pi)
 J_c = (0.55+0.72*F_c)
 #print(J_c)
 
 #Bundle Leakage effects correctional factor
-theta_b = 2*np.arccos(1-(2*l_c/D_s))
+theta_b = 2*np.arccos(1-(2*v.l_c/v.D_s))
 F_w = (theta_ctl/(2*np.pi))-(np.sin(theta_ctl)/(2*np.pi))
-d_sb = D_s-D_baffle
-d_tb = d_l-d_o
-A_o_sb = np.pi*D_s*(d_sb/2)*(1-(theta_b/(2*np.pi)))
-A_o_tb = (np.pi*d_o*d_tb*N_t*(1-F_w))/2
+d_sb = v.D_s-v.D_baffle
+d_tb = v.d_l-v.d_o
+A_o_sb = np.pi*v.D_s*(d_sb/2)*(1-(theta_b/(2*np.pi)))
+A_o_tb = (np.pi*v.d_o*d_tb*v.N_t*(1-F_w))/2
 A_o_cr = 0.03275
-'''
-if Bundle_layout in (30,90):
-    A_o_cr = (D_s-D_otl+(D_ctl/X_t)*(X_t-d_o))*L_bc
-elif Bundle_layout in (45,60):
-    print("no1")
-elif Bundle_layout in (30,90):
-    print("no2")
-else Bundle_layout in (30,90):
-    print("no3")
-'''
 r_s = (A_o_sb)/(A_o_sb+A_o_tb)
 r_lm = (A_o_sb+A_o_tb)/(A_o_cr)
 J_l = (0.44*(1-r_s)+(1-0.44*(1-r_s))*np.e**(-2.2*r_lm))
 #print(J_l)
 
 #Bundle and pass partition bypass correctional factor
-G_s = (m_s/A_o_cr)
-A_o_bp = L_bc*(D_s-D_otl+0.5*N_p*w_p)
-Re_s = round((G_s*d_o)/u_s)
-N_ss_plus = N_ss/N_rcc
+G_s = (v.m_s/A_o_cr)
+A_o_bp = v.L_bc*(v.D_s-v.D_otl+0.5*v.N_p*v.w_p)
+Re_s = round((G_s*v.d_o)/v.u_s)
+N_ss_plus = v.N_ss/v.N_rcc
 r_b = A_o_bp/A_o_cr
 if Re_s<=100:
     C = 1.35
@@ -106,19 +59,19 @@ else:
 #print(J_b)
 
 #Larger baffle spacing correctional factor
-if Laminar_flow == 1:
+if v.Laminar_flow == 1:
     n = 1/3
 else:
     n = 3/5
-L_i_plus = L_bi/L_bc
-L_o_plus = L_bo/L_bc
-N_b = ((L-L_bi-L_bo)/L_bc)+1
+L_i_plus = v.L_bi/v.L_bc
+L_o_plus = v.L_bo/v.L_bc
+N_b = ((v.L-v.L_bi-v.L_bo)/v.L_bc)+1
 J_s = ((N_b-1+L_i_plus**(1-n)+L_o_plus**(1-n))/(N_b-1+L_i_plus+L_o_plus))
 #print(J_s)
 
 #Adverse Temperature Gradient Buildup in Laminar Flow correctional factor
-N_rcw = (0.8/X_t)*(l_c-(1/2)*(D_s-D_ctl))
-N_rc = N_rcc+N_rcw
+N_rcw = (0.8/v.X_t)*(v.l_c-(1/2)*(v.D_s-D_ctl))
+N_rc = v.N_rcc+N_rcw
 if Re_s >= 100:
     J_r = 1
 elif Re_s <= 20:
@@ -130,7 +83,7 @@ else:
 ##Heat Transfer Calculations - Core
 
 #Perfect Heat Transfer Coefficent 
-h_id = (((Nu_s*k)/d_o)*(1)**-0.14)
+h_id = (((v.Nu_s*v.k)/v.d_o)*(1)**-0.14)
 #print(h_id)
 
 #Calculated Heating Coefficent
@@ -160,32 +113,32 @@ C_l = np.e**(-1.33*(1+r_s)*r_lm**p)
 #print(C_l)
 
 #Differing Baffle Spacing from central section
-if Laminar_flow == 0:    
+if v.Laminar_flow == 0:    
     n_prime = 0.2
 else:
     n_prime = 1.0
-C_s = (L_bc/L_bo)**(2-n_prime)+(L_bc/L_bi)**(2-n_prime)
+C_s = (v.L_bc/v.L_bo)**(2-n_prime)+(v.L_bc/v.L_bi)**(2-n_prime)
 #print(C_s)
 
 #Pressure Drop Variable Calculations
-A_frt = (np.pi/4)*(d_o**2)*F_w*N_t
-A_frw = (np.pi/4)*(D_s**2)*((theta_b/(2*np.pi))-((np.sin(theta_b))/(2*np.pi)))
+A_frt = (np.pi/4)*(v.d_o**2)*F_w*v.N_t
+A_frw = (np.pi/4)*(v.D_s**2)*((theta_b/(2*np.pi))-((np.sin(theta_b))/(2*np.pi)))
 A_o_w = A_frw-A_frt
 g_c = 1
-G_w = m_s/((A_o_cr*A_o_w)**0.5)
+G_w = v.m_s/((A_o_cr*A_o_w)**0.5)
 b = 6.59/(1+0.14*Re_s**0.52)
-f_id = 3.5*(1.33*d_o/p_t)**b*Re_s**(-0.476)
-Delta_p_b_id = (4*N_rcc*f_id*G_s**2)*(1)**(0.25)/(2*g_c*p_s)
-Delta_p_w = N_b*(2+0.6*N_rcw)*((G_w**2)/(2*g_c*p_s))*C_l
+f_id = 3.5*(1.33*v.d_o/v.p_t)**b*Re_s**(-0.476)
+Delta_p_b_id = (4*v.N_rcc*f_id*G_s**2)*(1)**(0.25)/(2*g_c*v.p_s)
+Delta_p_w = N_b*(2+0.6*N_rcw)*((G_w**2)/(2*g_c*v.p_s))*C_l
 Delta_p_cr = Delta_p_b_id*(N_b-1)*C_b*C_l
-Delta_p_io = 2*Delta_p_b_id*(1+(N_rcw/N_rcc))*C_b*C_s
+Delta_p_io = 2*Delta_p_b_id*(1+(N_rcw/v.N_rcc))*C_b*C_s
 
 #Total Pressure drop
 Delta_p_s = Delta_p_cr+Delta_p_w+Delta_p_io
 #print(Delta_p_s)
 
 ##Energy Balance Equation
-T_to = T_ti+E*(T_si-T_ti)
+T_to = v.T_ti+v.E*(v.T_si-v.T_ti)
 #q = m_s*c_ps*(T_to-T_ti)
 
 ##Overal heat Transfer Coefficient
