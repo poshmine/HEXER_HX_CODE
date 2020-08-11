@@ -1,5 +1,5 @@
 '''
-Date of last edit: July 27th, 2020
+Date of last edit: August 11th, 2020
 Author(s): Ryan McGuire*    Lane Carasik^
 *Virginia CommonWealth University
 *FAST Research Group
@@ -19,6 +19,7 @@ Revision Points
 ##Basic Imports and Function Representatives
 import numpy as np
 import HEXER_variables as v
+import matplotlib.pyplot as plt
 
 ##Correctional Factor Calculations
 
@@ -148,3 +149,21 @@ T_to = v.T_ti+v.E*(v.T_si-v.T_ti)
 
 ##Approximate Design Method (Sizing)
 #A_s = (q)/(U_o*F*Delta_T_lm)
+
+##Ploting Variables
+'''
+#Presure drop vs Interior Diameter
+plt.scatter(v.D_s, Delta_p_s)
+#plt.axis([0.31, 0.35,])
+plt.title("Presure Drop vs Interior Diameter")
+plt.xlabel("Inside Diameter (m)")
+plt.ylabel("Total Pressure Drop")
+plt.show()
+
+#Heat transfer coefficent vs Interior Diameter
+plt.scatter(v.D_s, h_id)
+plt.title("Heat transfer Coefficent vs Interior Diameter")
+plt.xlabel("Inside Diameter (m)")
+plt.ylabel("Heat Transfer Coefficent")
+plt.show()
+'''
