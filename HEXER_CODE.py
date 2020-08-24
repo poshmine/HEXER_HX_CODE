@@ -1,5 +1,5 @@
 '''
-Date of last edit: August 11th, 2020
+Date of last edit: August 24th, 2020
 Author(s): Ryan McGuire*    Lane Carasik^
 *Virginia CommonWealth University
 *FAST Research Group
@@ -11,9 +11,8 @@ for Shell-and-Tube bundles based on models found in literature.
 
 '''
 Revision Points
-1) A_o_cr
-2) A_o_tb
-3) N_b
+A_o_tb
+N_rc
 '''
 
 ##Basic Imports and Function Representatives
@@ -29,7 +28,6 @@ theta_ctl = 2*np.arccos((v.D_s-2*v.l_c)/D_ctl)
 F_c = 1-(theta_ctl/np.pi)+(np.sin(theta_ctl)/np.pi)
 J_c = (0.55+0.72*F_c)
 #print(J_c)
-
 #Bundle Leakage effects correctional factor
 theta_b = 2*np.arccos(1-(2*v.l_c/v.D_s))
 F_w = (theta_ctl/(2*np.pi))-(np.sin(theta_ctl)/(2*np.pi))
@@ -37,7 +35,9 @@ d_sb = v.D_s-v.D_baffle
 d_tb = v.d_l-v.d_o
 A_o_sb = np.pi*v.D_s*(d_sb/2)*(1-(theta_b/(2*np.pi)))
 A_o_tb = (np.pi*v.d_o*d_tb*v.N_t*(1-F_w))/2
-A_o_cr = 0.03275
+Case1 = v.p_t/v.d_o
+if v.Tbl == 30 or 90:
+    A_o_cr = (v.D_s-v.D_otl+2*(D_ctl/v.X_t)*(v.p_t-v.d_o))*v.L_bc
 r_s = (A_o_sb)/(A_o_sb+A_o_tb)
 r_lm = (A_o_sb+A_o_tb)/(A_o_cr)
 J_l = (0.44*(1-r_s)+(1-0.44*(1-r_s))*np.e**(-2.2*r_lm))
@@ -66,7 +66,7 @@ else:
     n = 3/5
 L_i_plus = v.L_bi/v.L_bc
 L_o_plus = v.L_bo/v.L_bc
-N_b = ((v.L-v.L_bi-v.L_bo)/v.L_bc)+1
+N_b = round(((v.L-v.L_bi-v.L_bo)/v.L_bc)+1)
 J_s = ((N_b-1+L_i_plus**(1-n)+L_o_plus**(1-n))/(N_b-1+L_i_plus+L_o_plus))
 #print(J_s)
 
